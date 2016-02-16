@@ -30,7 +30,28 @@ firmware update: via USB memory
    - oldTunerModel: for the board which has metal shell TV tuner.
    - newTunerModel: for the board with new TV tuner, you can see R840 chip on the board.
    - repair: default firmware, in order to rescue?
-   
+
+### T.VST59.031
+
+this is similar board of _LA.MV9.P V59_, and firmware mirror of [http://kythuatphancung.vn/diendan/index.php?/topic/33828-firmware-board-tv-lcd-tvst59031-chip-tsumv59xu-z1-update-20141023/]
+
+### How to select .bin file
+
+1. If the directory name contains the model number of the panel, that's exactly what.
+2. Else, first, check the panel spec: [LVDS Input Voltage(3.3V/5V/12V)], [LVDS channels(1ch/2ch)], [LVDS bandwidth(6bit/8bit)], [Resolution(pixel)], using like [panelook.com](http://www.panelook.com/).
+3. Open _5key_ or _7key_ directory(select your own), Search directories that _Resolution_ is matched.
+4. Next, search LVDS interface is matched; the part of directory name, as regexp, has _(SI|DO)(6|8)(L|T)?_ string.
+    - SI: single; _1ch_
+    - DO: double; _2ch_
+    - 6/8: _6bit_ or _8bit_ interface
+    - L/T: (maybe) logic level; _LVDS_ or _TTL_ (; TTL is older interface, these panel is almost unavailable.)
+    - \*For example, [LQ170M1LA4B](http://www.panelook.com/modeldetail.php?id=10195) is _LVDS(2ch,6bit,3.3V)_, resolution is _1920x1200_. So the directory name should contains _DO6L_ and _1920x1200_.
+5. Then, select voltage, directory name contains _3V_ for 3.3V, _5V_ for 5V, _12V_ for 12V,
+   and you should change jumper on the controller board, see documents.
+6. Finally, you found more than one directory, check the model number in the directory name, compare to your panel, then select the one more similar to your panel.
+    - \*For example about _LQ170M1LA4B_, we found some directories in 7key. This panel is 17inch, for _B170UW01V0_ is maybe better choice.
+
+
 ### MEMO
 
 essential quotes
