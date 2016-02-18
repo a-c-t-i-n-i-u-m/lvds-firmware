@@ -6,30 +6,32 @@ no checked, no support, no documents.
 
 ## d.o.c.u.m.e.n.t:)
 
+[www.elecrealm.com]
+[www.elecrealm.com/down/class/?22.html]
+
 ### TSUMV29
 
-mirror of [https://sites.google.com/site/lcd4hobby/5-lcd-as-pc-hdmi-av-tv-multidisplay](https://sites.google.com/site/lcd4hobby/5-lcd-as-pc-hdmi-av-tv-multidisplay)
-
-model: LA.MV29.P
-firmware update: via USB memory
-
+sources:  
+[http://www.elecrealm.com/down/html/?13.html]  
+[https://sites.google.com/site/lcd4hobby/5-lcd-as-pc-hdmi-av-tv-multidisplay]  
+model: LA.MV29.P  
+firmware update: via USB memory  
 directory:
-- TSUMV29
-   - oldTunerModel: for the board which has metal shell TV tuner.
-   - newTuner(R840)Model: for the board with new TV tuner, you can see R840 chip on the board.
-   - repair: default firmware, in order to rescue?
+- oldTunerModel: for the board which has metal shell TV tuner.
+- newTuner(R840)Model: for the board with new TV tuner, you can see R840 chip on the board.
+- repair: default firmware, in order to rescue?
 
 ### TSUMV59
 
-mirror of [https://sites.google.com/site/lcd4hobby/6-lcd-as-pc-vga-hdmi-av-tv-display-tsumv59](https://sites.google.com/site/lcd4hobby/6-lcd-as-pc-vga-hdmi-av-tv-display-tsumv59)
-
-model: LA.MV9.P V59
+sources:  
+[http://www.elecrealm.com/down/html/?21.html]  
+[https://sites.google.com/site/lcd4hobby/6-lcd-as-pc-vga-hdmi-av-tv-display-tsumv59]  
+model: LA.MV9.P V59  
 firmware update: via USB memory
-
-- TSUMV59
-   - oldTunerModel: for the board which has metal shell TV tuner.
-   - newTunerModel: for the board with new TV tuner, you can see R840 chip on the board.
-   - repair: default firmware, in order to rescue?
+directory:
+- oldTunerModel: for the board which has metal shell TV tuner.
+- newTunerModel: for the board with new TV tuner, you can see R840 chip on the board.
+- repair: default firmware, in order to rescue?
 
 ### T.VST(2|5)9.031
 
@@ -91,10 +93,10 @@ _.bin file what is placed at end of this page._ is _~/TSUMV(2|5)9/repair/\*\*.bi
 
 ### panelook.com search support plugin for greasemonkey
 
-[panelook.com;_search_controller_board_firmware.user.js](https://github.com/a-c-t-i-n-i-u-m/lvds-firmware/tree/master/test/panelook.com;_search_controller_board_firmware.user.js) is the user-script for searching panels at [panelook.com](http://www.panelook.com).
-When the result page, click 'Search Firmware' button, then shows firmware that (maybe) matching to that panel.
-When you change election form, result will be filtered by board type(TSUMV29/TSUMV59).
-When you click 'Aliexpress Search', for each panel, open aliexpress's search result page.
+[panelook.com;_search_controller_board_firmware.user.js](https://github.com/a-c-t-i-n-i-u-m/lvds-firmware/tree/master/test/panelook.com;_search_controller_board_firmware.user.js) is the user-script for searching panels at [panelook.com](http://www.panelook.com).  
+When the result page, click 'Search Firmware' button, then shows firmware that (maybe) matching to that panel. 
+When you change election form, result will be filtered by board type(TSUMV29/TSUMV59). 
+When you click 'Aliexpress Search', for each panel, open aliexpress's search result page.  
 When the detail page for each panel, this script will insert search result of firmware to page.
 
 ### shop links
