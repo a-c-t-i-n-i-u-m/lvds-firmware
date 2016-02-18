@@ -28,7 +28,8 @@ var md5 = function (file) {
 };
 
 // listup files
-var files = rreaddir(path.resolve(path.dirname(process.argv[1]), '..'));
+var base = path.resolve(path.dirname(process.argv[1]), '..');
+var files = rreaddir(base);
 
 // create database
 var data = {}, count = 0;
@@ -37,36 +38,12 @@ files.forEach(function (file) {
     if (file.slice(-4) !== '.bin') {
         return;
     }
-    // create item data
-    var hash = md5(file),
-        category = path.basename(path.dirname(path.dirname(file))),
-        dirname = path.basename(path.dirname(file)),
-        attr = dirname.split('_'),
-        reso = dirname.match(/(\d{3,4})(?:\-|_|x|\*)(\d{3,4})/i),
-        model = reso ? dirname.split(reso[0])[0].slice(0, -1).replace(/_/g, '-') : '',
-        key = dirname.match(/(5|7)(?:k(?:ey)?)_/i);
-    if (category.match(/(5|7)(?:k(?:ey)?)/i)) {
-        category = path.basename(path.dirname(path.dirname(path.dirname(path.dirname(file))))) + '/'
-            + path.basename(path.dirname(path.dirname(path.dirname(file)))) + '/'
-            + category;
-    }
-    var fileData = {
-        filepath: file,
-        attributes: attr,
-        category: category,
-        model: model,
-        r840: dirname.indexOf('R840') !== -1 || dirname.indexOf('r840') !== -1,
-        resolution: (reso ? [+reso[1], +reso[2]] : []),
-        key: key ? +key[1] : null,
-    };
-    // save
-    if (data[hash]) {
-        data[hash].push(fileData);
-        console.error(hash);
-    } else {
-        data[hash] = [fileData];
-    }
+    var hash = md5(file);
+    data[hash] = path.dirname(file.replace(base, '').replace(/\\/g, '/').slice(1));
 });
 
-
-console.log(JSON.stringify(data, null, 4));
+var vals = [];
+for (var k in data) {
+    vals.push(data[k]);
+}
+console.log(JSON.stringify(vals, null, 4));

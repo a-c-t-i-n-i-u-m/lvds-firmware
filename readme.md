@@ -31,9 +31,10 @@ firmware update: via USB memory
    - newTunerModel: for the board with new TV tuner, you can see R840 chip on the board.
    - repair: default firmware, in order to rescue?
 
-### T.VST59.031
+### T.VST(2|5)9.031
 
-this is similar board of _LA.MV9.P V59_, and firmware mirror of [http://kythuatphancung.vn/diendan/index.php?/topic/33828-firmware-board-tv-lcd-tvst59031-chip-tsumv59xu-z1-update-20141023/]
+This is similar board. I found firms for T.VST59.031, it is not matched to _LA.MV9.P V59_'s firms, why...?
+[http://kythuatphancung.vn/diendan/index.php?/topic/33828-firmware-board-tv-lcd-tvst59031-chip-tsumv59xu-z1-update-20141023/]
 
 ### How to select .bin file
 
@@ -87,6 +88,14 @@ _.bin file what is placed at end of this page._ is _~/TSUMV(2|5)9/repair/\*\*.bi
 
 - [Controladora LCD Universal v29 - Configurações](https://www.youtube.com/watch?v=WMIL4Ta7asc): tutorial movie of update firmware and assembling.
 
+
+### panelook.com search support plugin for greasemonkey
+
+[panelook.com;_search_controller_board_firmware.user.js](https://github.com/a-c-t-i-n-i-u-m/lvds-firmware/tree/master/test/panelook.com;_search_controller_board_firmware.user.js) is the user-script for searching panels at [panelook.com](http://www.panelook.com).
+When the result page, click 'Search Firmware' button, then shows firmware that (maybe) matching to that panel.
+When you change election form, result will be filtered by board type(TSUMV29/TSUMV59).
+When you click 'Aliexpress Search', for each panel, open aliexpress's search result page.
+When the detail page for each panel, this script will insert search result of firmware to page.
 
 ### shop links
 
