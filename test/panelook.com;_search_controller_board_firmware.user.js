@@ -38,10 +38,9 @@ var get = function (url, success, error, done) {
 var resultToLink = function (result) {
     var content = '';
     result.forEach(function (v) {
-        var u = v.split('/');
         content += '<div data-firmware-path="' + v
             + '"><a href="https://github.com/a-c-t-i-n-i-u-m/lvds-firmware/tree/master/'
-            + v   + '">' + '[' + u[0] + ']' + u.pop() + '</a></div>';
+            + v   + '">' + v.split('/').pop() + '</a></div>';
     });
     return content;
 };
@@ -51,8 +50,7 @@ var detailToResult = function (html) {
     try {
         var j_interface = html.match(/Signal Interface\s*:[\s\S]*?<td>([^<]*?)<\/td>/),
             j_resolution = html.match(/Resolution\s*:[\s\S]*?<td>([^<]*?)<\/td>/),
-            j_voltage = html.match(/Input Voltage\s*:[\s\S]*?<td>([^<]*?)<\/td>/),
-            result = [];
+            j_voltage = html.match(/Input Voltage\s*:[\s\S]*?<td>([^<]*?)<\/td>/);
         // parse data
         var ifType, ifLanes, ifWidth, ifPins, ifIndex;
         if (j_interface) {
@@ -64,7 +62,7 @@ var detailToResult = function (html) {
                 ifType = 'T';
             } else {
                 // non support
-                return insertResult(tr);
+                return [];
             }
             
             // channel
@@ -78,7 +76,7 @@ var detailToResult = function (html) {
                 ifLanes = 'DO';
             } else {
                 // no ch detected
-                return insertResult(tr);
+                return [];
             }
             // width
             var w = t.match(/(\d+)[^\d]*?bit/);
@@ -86,16 +84,11 @@ var detailToResult = function (html) {
                 ifWidth = w[1];
             }
             if (!ifWidth) {
-                return insertResult(tr);
-            }
-            // pin
-            var pin = t.match(/(\d+)[^\d]*?pin/);
-            if (pin) {
-                ifPins = +pin[1];
+                return [];
             }
             ifIndex = ifLanes + ifWidth + ifType;
         } else {
-            return insertResult(tr);
+            return [];
         }
         var resolution;
         if (j_resolution) {
@@ -115,6 +108,7 @@ var detailToResult = function (html) {
             }
         }
         // search
+        var result = [];
         data.forEach(function (d) {
             if (d.indexOf(ifIndex) === -1) {
                 return;
@@ -130,14 +124,10 @@ var detailToResult = function (html) {
             // matched
             result.push(d);
         });
-        // insert
-        return {
-            pin: ifPins,
-            firms: result,
-        };
+        return result;
     } catch (e) {
+        return [];
     }
-    return {};
 };
 
 var init = {
@@ -154,14 +144,9 @@ var init = {
                 }
                 get(a.href, function (html) {
                     var data = detailToResult(html);
-                    
-                    var tdPins = document.createElement('td');
-                    tdPins.textContent = data.pin ? data.pin + ' pins' : '';
-                    tr.appendChild(tdPins);
-                    
                     var tdFirms = document.createElement('td');
-                    if (data.firms&& data.firms.length) {
-                        tdFirms.innerHTML = '<div>' + data.firms.length + ' matched.</div><div>' + resultToLink(data.firms) + '</div>';
+                    if (data.length) {
+                        tdFirms.innerHTML = '<div>' + data.length + ' matched.</div><div>' + resultToLink(data) + '</div>';
                         var divButton = tdFirms.children[0],
                             divContainer = tdFirms.children[1];
                         divButton.addEventListener('click', function () {
@@ -185,9 +170,11 @@ var init = {
         
         // switch
         var sw = document.createElement('select'),
-            style = document.createElement('style');
+            style = document.createElement('style'),
+            lkey = GM_info.script.namespace + GM_info.script.name + '__selection';
         sw.setAttribute('style', 'display: block; position: fixed; top: 24px; left: 0; z-index: 99999999;');
         sw.addEventListener('change', function () {
+            localStorage.setItem(lkey, sw.value);
             if (sw.value === 'all') {
                 style.textContent = '';
             } else {
@@ -210,7 +197,8 @@ var init = {
             + '<option value="TSUMV59/newTunerModel">TSUMV59,New Tuner</option>'
             + '<option value="TSUMV59/newTunerModel/5key">TSUMV59,New Tuner,5key</option>'
             + '<option value="TSUMV59/newTunerModel/7key">TSUMV59,New Tuner,7key</option>'
-            + '<option value="T.VST59.031/R840/7key">T.VST59.031,New Tuner,7key</option>'
+            + '<option value="T.VST59.031/R840/7key">T.VST59.031,New Tuner,7key</option>';
+        sw.value = localStorage.getItem(lkey);
         document.body.appendChild(sw);
         document.body.appendChild(style);
         
@@ -239,8 +227,17 @@ var init = {
     detail: function () {
         var data = detailToResult(document.body.innerHTML);
         var tbody = document.querySelector('.' + (location.href.indexOf('overview') === -1 ? 'para_tab' : 'gf_tab') + ' tbody');
-        tbody.innerHTML += '<tr><th>Firmware</th><td>'
-            + (data.firms ? resultToLink(data.firms) : '') + '</td></tr>';
+        tbody.innerHTML += '<tr><th>Firmware</th><td>' + resultToLink(data) + '</td></tr>';
+        
+        // open aliexpress
+        var openAliexpress = document.createElement('button');
+        openAliexpress.addEventListener('click', function () {
+            window.open('http://www.aliexpress.com/wholesale?shipCountry=jp&SearchText='
+                + encodeURIComponent(document.querySelector('h1 a').title));
+        });
+        openAliexpress.setAttribute('style', 'display: block; position: fixed; top: 0; left: 0; z-index: 99999999;');
+        openAliexpress.textContent = 'Aliexpress Search';
+        document.body.appendChild(openAliexpress);
     },
 };
 
