@@ -1,0 +1,5 @@
+There are at least four different versions of the driver board V29/V59. Each company USES a different file name and file size are different. Please make sure you board manufacturer, and select the correct firmware file corresponding to the related manufacture. And I can't modify the file name.
+
+If you choose the program of other factory, may not be successfully written to the drive board, or written to, but driver board can't work, and will damage the driver board.
+
+This rar file is only for LA.MV9.P-V29 and the manufacture in Chinese character-LANGHUA.Each bin file size is 737kb.
