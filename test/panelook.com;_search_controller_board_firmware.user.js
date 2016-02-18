@@ -38,12 +38,10 @@ var get = function (url, success, error, done) {
 var resultToLink = function (result) {
     var content = '';
     result.forEach(function (v) {
-        var u = v.split('/'),
-            b = u.shift(),
-            m = u.pop();
-        content += '<div class="__firmware_board_' + b
+        var u = v.split('/');
+        content += '<div data-firmware-path="' + v
             + '"><a href="https://github.com/a-c-t-i-n-i-u-m/lvds-firmware/tree/master/'
-            + v   + '">' + '[' + b + ']' + m + '</a></div>';
+            + v   + '">' + '[' + u[0] + ']' + u.pop() + '</a></div>';
     });
     return content;
 };
@@ -169,7 +167,6 @@ var init = {
                         divButton.addEventListener('click', function () {
                             divContainer.style.display = divContainer.style.display === 'block' ? 'none' : 'block';
                         });
-                        //divContainer.style.display = 'none';
                         divButton.style.cursor = 'pointer';
                     } else {
                         tdFirms.innerHTML = '0 matched.';
@@ -191,19 +188,29 @@ var init = {
             style = document.createElement('style');
         sw.setAttribute('style', 'display: block; position: fixed; top: 24px; left: 0; z-index: 99999999;');
         sw.addEventListener('change', function () {
-            var boards = ['TSUMV29', 'TSUMV59'],
-                v = this.value,
-                content = '';
-            boards.forEach(function (b) {
-                if (v !== 'all' && v !== b) {
-                    content += '.__firmware_board_' + b + '{ display: none; }';
-                }
-            });
-            style.textContent = content;
+            if (sw.value === 'all') {
+                style.textContent = '';
+            } else {
+                style.textContent = '[data-firmware-path] { display: none; } [data-firmware-path^="'
+                    + sw.value + '"] { display: block; }';
+            }
         });
         sw.innerHTML = '<option value="all">All</option>'
             + '<option value="TSUMV29">TSUMV29</option>'
-            + '<option value="TSUMV59">TSUMV59</option>';
+            + '<option value="TSUMV29/oldTunerModel">TSUMV29,Old Tuner</option>'
+            + '<option value="TSUMV29/oldTunerModel/5key">TSUMV29,Old Tuner,5key</option>'
+            + '<option value="TSUMV29/oldTunerModel/7key">TSUMV29,Old Tuner,7key</option>'
+            + '<option value="TSUMV29/newTuner(R840)Model">TSUMV29,New Tuner</option>'
+            + '<option value="TSUMV29/newTuner(R840)Model/TUNER840_5KEY">TSUMV29,New Tuner,5key</option>'
+            + '<option value="TSUMV29/newTuner(R840)Model/TUNER840_7KEY">TSUMV29,New Tuner,7key</option>'
+            + '<option value="TSUMV59">TSUMV59</option>'
+            + '<option value="TSUMV59/oldTunerModel">TSUMV59,Old Tuner</option>'
+            + '<option value="TSUMV59/oldTunerModel/5key">TSUMV59,Old Tuner,5key</option>'
+            + '<option value="TSUMV59/oldTunerModel/7key">TSUMV59,Old Tuner,7key</option>'
+            + '<option value="TSUMV59/newTunerModel">TSUMV59,New Tuner</option>'
+            + '<option value="TSUMV59/newTunerModel/5key">TSUMV59,New Tuner,5key</option>'
+            + '<option value="TSUMV59/newTunerModel/7key">TSUMV59,New Tuner,7key</option>'
+            + '<option value="T.VST59.031/R840/7key">T.VST59.031,New Tuner,7key</option>'
         document.body.appendChild(sw);
         document.body.appendChild(style);
         
@@ -214,10 +221,14 @@ var init = {
             // open
             var lines = document.querySelectorAll('#listable tbody tr');
             Array.prototype.forEach.call(lines, function (tr) {
-                var matches = tr.querySelectorAll('td:last-child > div > div' + (sw.value !== 'all' ? '.__firmware_board_' + sw.value : ''));
-                if (matches.length) {
-                    // open
-                    window.open(base + encodeURIComponent(tr.cells[1].querySelector('a').textContent), '_blank');
+                var div = tr.querySelectorAll('td:last-child > div > div');
+                for (var i = 0; i < div.length; i++) {
+                    // is visible
+                    if (div[i].offsetParent) {
+                        // open
+                        window.open(base + encodeURIComponent(tr.cells[1].querySelector('a').textContent), '_blank');
+                        break;
+                    }
                 }
             });
         });
