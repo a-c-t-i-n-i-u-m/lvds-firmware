@@ -13,6 +13,9 @@
 // ==/UserScript==
 
 // detect page
+if (window.self !== window.top) {
+    return;
+}
 var page = location.href.match(/(?:(?:overview|parameter).*\.html|modeldetail\.php\?)/) ? 'detail' : 'list';
 
 // ajax get
@@ -40,7 +43,7 @@ var resultToLink = function (result) {
     result.forEach(function (v) {
         content += '<div data-firmware-path="' + v
             + '"><a href="https://github.com/a-c-t-i-n-i-u-m/lvds-firmware/tree/master/'
-            + v   + '">' + v.split('/').pop() + '</a></div>';
+            + v   + '">' + (page === 'detail' ? v : v.split('/').pop()) + '</a></div>';
     });
     return content;
 };
@@ -108,29 +111,69 @@ var detailToResult = function (html) {
             }
         }
         // search
-        var result = [];
-        data.forEach(function (d) {
+        return data.filter(function (d) {
             if (d.indexOf(ifIndex) === -1) {
-                return;
+                return false;
             }
             // resolution
             if (resolution && !resolution.test(d)) {
-                return;
+                return false;
             }
             // voltage
             if (voltage && d.indexOf(voltage + 'V') === -1) {
-                return;
+                return false;
             }
             // matched
-            result.push(d);
+            return true;
         });
-        return result;
     } catch (e) {
         return [];
     }
 };
 
 var init = {
+    __initFilter: function () {
+        var sw = document.createElement('select'),
+            style = document.createElement('style'),
+            lkey = GM_info.script.namespace + GM_info.script.name + '__selection';
+        sw.setAttribute('style', 'display: block; position: fixed; top: 25px; left: 0; z-index: 99999999;');
+        var onChange = function () {
+            try {
+                localStorage.setItem(lkey, sw.value);
+            } catch (e) {
+            }
+            if (sw.value === 'all') {
+                style.textContent = '';
+            } else {
+                style.textContent = '[data-firmware-path] { display: none; } [data-firmware-path^="'
+                    + sw.value + '"] { display: block; }';
+            }
+        };
+        sw.addEventListener('change', onChange);
+        sw.innerHTML = '<option value="all">All</option>'
+            + '<option value="TSUMV29">TSUMV29</option>'
+            + '<option value="TSUMV29/oldTunerModel">TSUMV29,Old Tuner</option>'
+            + '<option value="TSUMV29/oldTunerModel/5key">TSUMV29,Old Tuner,5key</option>'
+            + '<option value="TSUMV29/oldTunerModel/7key">TSUMV29,Old Tuner,7key</option>'
+            + '<option value="TSUMV29/newTuner(R840)Model">TSUMV29,New Tuner</option>'
+            + '<option value="TSUMV29/newTuner(R840)Model/TUNER840_5KEY">TSUMV29,New Tuner,5key</option>'
+            + '<option value="TSUMV29/newTuner(R840)Model/TUNER840_7KEY">TSUMV29,New Tuner,7key</option>'
+            + '<option value="TSUMV59">TSUMV59</option>'
+            + '<option value="TSUMV59/oldTunerModel">TSUMV59,Old Tuner</option>'
+            + '<option value="TSUMV59/oldTunerModel/5key">TSUMV59,Old Tuner,5key</option>'
+            + '<option value="TSUMV59/oldTunerModel/7key">TSUMV59,Old Tuner,7key</option>'
+            + '<option value="TSUMV59/newTunerModel">TSUMV59,New Tuner</option>'
+            + '<option value="TSUMV59/newTunerModel/5key">TSUMV59,New Tuner,5key</option>'
+            + '<option value="TSUMV59/newTunerModel/7key">TSUMV59,New Tuner,7key</option>'
+            + '<option value="T.VST59.031/R840/7key">T.VST59.031,New Tuner,7key</option>';
+        try {
+            sw.value = localStorage.getItem(lkey) || 'all';
+            onChange();
+        } catch (e) {
+        }
+        document.body.appendChild(sw);
+        document.body.appendChild(style);
+    },
     list: function () {
         var button = document.createElement('button');
         button.textContent = 'Search Firmware';
@@ -168,76 +211,86 @@ var init = {
         document.querySelector('#container').style.width = '100%';
         document.querySelector('#leftrow').style.width = '100%';
         
-        // switch
-        var sw = document.createElement('select'),
-            style = document.createElement('style'),
-            lkey = GM_info.script.namespace + GM_info.script.name + '__selection';
-        sw.setAttribute('style', 'display: block; position: fixed; top: 24px; left: 0; z-index: 99999999;');
-        sw.addEventListener('change', function () {
-            localStorage.setItem(lkey, sw.value);
-            if (sw.value === 'all') {
-                style.textContent = '';
-            } else {
-                style.textContent = '[data-firmware-path] { display: none; } [data-firmware-path^="'
-                    + sw.value + '"] { display: block; }';
-            }
-        });
-        sw.innerHTML = '<option value="all">All</option>'
-            + '<option value="TSUMV29">TSUMV29</option>'
-            + '<option value="TSUMV29/oldTunerModel">TSUMV29,Old Tuner</option>'
-            + '<option value="TSUMV29/oldTunerModel/5key">TSUMV29,Old Tuner,5key</option>'
-            + '<option value="TSUMV29/oldTunerModel/7key">TSUMV29,Old Tuner,7key</option>'
-            + '<option value="TSUMV29/newTuner(R840)Model">TSUMV29,New Tuner</option>'
-            + '<option value="TSUMV29/newTuner(R840)Model/TUNER840_5KEY">TSUMV29,New Tuner,5key</option>'
-            + '<option value="TSUMV29/newTuner(R840)Model/TUNER840_7KEY">TSUMV29,New Tuner,7key</option>'
-            + '<option value="TSUMV59">TSUMV59</option>'
-            + '<option value="TSUMV59/oldTunerModel">TSUMV59,Old Tuner</option>'
-            + '<option value="TSUMV59/oldTunerModel/5key">TSUMV59,Old Tuner,5key</option>'
-            + '<option value="TSUMV59/oldTunerModel/7key">TSUMV59,Old Tuner,7key</option>'
-            + '<option value="TSUMV59/newTunerModel">TSUMV59,New Tuner</option>'
-            + '<option value="TSUMV59/newTunerModel/5key">TSUMV59,New Tuner,5key</option>'
-            + '<option value="TSUMV59/newTunerModel/7key">TSUMV59,New Tuner,7key</option>'
-            + '<option value="T.VST59.031/R840/7key">T.VST59.031,New Tuner,7key</option>';
-        sw.value = localStorage.getItem(lkey);
-        document.body.appendChild(sw);
-        document.body.appendChild(style);
+        // filter
+        init.__initFilter();
+        
+        // search buttons
+        // firmware available?
+        var openSearchResults = function (lines, callback) {
+            Array.prototype.forEach.call(
+                typeof lines === 'string' ? document.querySelectorAll(lines) : lines,
+                function (tr) {
+                    var div = tr.querySelectorAll('td:last-child > div > div');
+                    for (var i = 0; i < div.length; i++) {
+                        // is visible
+                        if (div[i].offsetParent) {
+                            callback(tr.cells[1].querySelector('a').textContent);
+                            break;
+                        }
+                    }
+                }
+            );
+        };
         
         // open aliexpress
         var openAliexpress = document.createElement('button');
         openAliexpress.addEventListener('click', function () {
-            var base = 'http://www.aliexpress.com/wholesale?shipCountry=jp&SearchText=';
-            // open
-            var lines = document.querySelectorAll('#listable tbody tr');
-            Array.prototype.forEach.call(lines, function (tr) {
-                var div = tr.querySelectorAll('td:last-child > div > div');
-                for (var i = 0; i < div.length; i++) {
-                    // is visible
-                    if (div[i].offsetParent) {
-                        // open
-                        window.open(base + encodeURIComponent(tr.cells[1].querySelector('a').textContent), '_blank');
-                        break;
-                    }
-                }
+            openSearchResults('#listable tbody tr', function (modelName) {
+                window.open('http://www.aliexpress.com/wholesale?shipCountry=jp&SearchText='
+                    + encodeURIComponent(modelName), '_blank');
             });
         });
-        openAliexpress.setAttribute('style', 'display: block; position: fixed; top: 44px; left: 0; z-index: 99999999;');
         openAliexpress.textContent = 'Aliexpress Search';
-        document.body.appendChild(openAliexpress);
+        
+        // open ebay
+        var openEbay = document.createElement('button');
+        openEbay.addEventListener('click', function () {
+            openSearchResults('#listable tbody tr', function (modelName) {
+                window.open('http://www.ebay.com/sch/'
+                    + encodeURIComponent(modelName) + '?_sop=15', '_blank');
+            });
+        });
+        openEbay.textContent = 'Ebay Search';
+        
+        // button container
+        var div = document.createElement('div');
+        div.setAttribute('style', 'position: fixed; top: 45px; left: 0; z-index: 99999999;');
+        document.body.appendChild(div);
+        div.appendChild(openAliexpress);
+        div.appendChild(openEbay);
+        document.body.appendChild(div);
     },
     detail: function () {
-        var data = detailToResult(document.body.innerHTML);
-        var tbody = document.querySelector('.' + (location.href.indexOf('overview') === -1 ? 'para_tab' : 'gf_tab') + ' tbody');
+        // insert firmware links
+        var data = detailToResult(document.body.innerHTML),
+            tbody = document.querySelector('.' + (location.href.indexOf('parameter') === -1 ? 'gf_tab' : 'para_tab') + ' tbody'),
+            searchKey = encodeURIComponent(document.querySelector('h1 a').title);
         tbody.innerHTML += '<tr><th>Firmware</th><td>' + resultToLink(data) + '</td></tr>';
         
         // open aliexpress
         var openAliexpress = document.createElement('button');
         openAliexpress.addEventListener('click', function () {
             window.open('http://www.aliexpress.com/wholesale?shipCountry=jp&SearchText='
-                + encodeURIComponent(document.querySelector('h1 a').title));
+                + searchKey, '_blank');
         });
-        openAliexpress.setAttribute('style', 'display: block; position: fixed; top: 0; left: 0; z-index: 99999999;');
         openAliexpress.textContent = 'Aliexpress Search';
-        document.body.appendChild(openAliexpress);
+        
+        // open ebay
+        var openEbay = document.createElement('button');
+        openEbay.addEventListener('click', function () {
+            window.open('http://www.ebay.com/sch/' + searchKey + '?_sop=15', '_blank');
+        });
+        openEbay.textContent = 'Ebay Search';
+        
+        // button container
+        var div = document.createElement('div');
+        div.setAttribute('style', 'position: fixed; top: 0; left: 0; z-index: 99999999;');
+        document.body.appendChild(div);
+        div.appendChild(openAliexpress);
+        div.appendChild(openEbay);
+        
+        // filter
+        init.__initFilter();
     },
 };
 
